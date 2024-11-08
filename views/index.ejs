@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+
+<% if (user) { %>
+    <h1>Welcome, <%= user.email %></h1>
+    <form id="sign-out-form" action="/users/sign_out" method="POST" style="display: none;"></form>
+    <a href="#" onclick="document.getElementById('sign-out-form').submit();">Sign out</a>
+<% } else { %>
+  <a href="/users/sign_in">Sign in</a>
+  <a href="/users/sign_up">Sign up</a>
+<% } %>
+
+<%- include('partials/footer') %>

@@ -1,16 +1,29 @@
 <%- include('../partials/header') %>
 
-<h1>Sign up</h1>
-<form action="/users/sign_up" method="post">
-    <section>
-        <label for="email">Email</label>
-        <input id="email" name="email" type="text" autocomplete="email" required autofocus>
-    </section>
-    <section>
-        <label for="current-password">Password</label>
-        <input id="current-password" name="password" type="password" autocomplete="current-password" required>
-    </section>
-    <button type="submit">Sign up</button>
-</form>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="mb-4">Sign up</h2>
+        <form action="/users/sign_up" method="post">
+          <div class="field">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-control" id="email" name="email" type="text" autocomplete="email" required autofocus>
+          </div>
+          <div class="field mb-3">
+            <label class="form-label" for="current-password">Password</label>
+            <input class="form-control" id="current-password" name="password" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="actions mb-3 d-grid">
+            <button class="btn btn-primary" type="submit">Sign up</button>
+          </div>
+        </form>      
+        <div>
+          <small>Already have an account? <a href="/users/sign_in">Sign in</a></small>
+        </div>
+      </div>
+    </div> 
+  </div>
+</div>
 
 <%- include('../partials/footer') %>

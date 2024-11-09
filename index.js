@@ -12,21 +12,11 @@ var { timeAgoInWords } = require('@bluemarblepayroll/time-ago-in-words');
 // load routes
 var authRouter = require('./routes/auth');
 var homeRouter = require('./routes/home');
+var propositionsRouter = require('./routes/propositions');
 
 const app = express();
 
-// Define the markdown rendering helper
-app.locals.mdRender = (markdown) => {
-  return md.render(markdown);
-};
-// Define the pluralize helper
-app.locals.pluralize = (word, count) => {
-  return pluralize(word, count);
-};
-// Define the timeAgoInWords helper
-app.locals.timeAgoInWords = (date) => {
-  return timeAgoInWords(date);
-};
+
 
 app.use(express.json());                            // for application/json
 app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded
@@ -48,6 +38,18 @@ app.use(passport.authenticate('session'));
 // Middleware to set user in res.locals
 app.use((req, res, next) => {
   res.locals.user = req.user;
+  // Define the markdown rendering helper
+  res.locals.mdRender = (markdown) => {
+    return md.render(markdown);
+  };
+  // Define the pluralize helper
+  res.locals.pluralize = (word, count) => {
+    return pluralize(word, count);
+  };
+  // Define the timeAgoInWords helper
+  res.locals.timeAgoInWords = (date) => {
+    return timeAgoInWords(date);
+  };
   next();
 });
 
@@ -60,6 +62,7 @@ const port = 3000
 
 app.use('/', authRouter);
 app.use('/', homeRouter);
+app.use('/propositions', propositionsRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

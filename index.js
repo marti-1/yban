@@ -4,11 +4,30 @@ const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
 var passport = require('passport');
 const pool = require('./db/connection');
+const MarkdownIt = require('markdown-it');
+const md = new MarkdownIt();
+var pluralize = require('pluralize');
+var { timeAgoInWords } = require('@bluemarblepayroll/time-ago-in-words');
 
 // load routes
 var authRouter = require('./routes/auth');
+var homeRouter = require('./routes/home');
 
 const app = express();
+
+// Define the markdown rendering helper
+app.locals.mdRender = (markdown) => {
+  return md.render(markdown);
+};
+// Define the pluralize helper
+app.locals.pluralize = (word, count) => {
+  return pluralize(word, count);
+};
+// Define the timeAgoInWords helper
+app.locals.timeAgoInWords = (date) => {
+  return timeAgoInWords(date);
+};
+
 app.use(express.json());                            // for application/json
 app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded
 // Serve static files
@@ -40,11 +59,7 @@ app.set('view engine', 'ejs');
 const port = 3000
 
 app.use('/', authRouter);
-
-app.get('/', (req, res) => {
-  // render json with the user object
-  res.render('index');
-});
+app.use('/', homeRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

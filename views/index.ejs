@@ -1,12 +1,36 @@
 <%- include('partials/header') %>
 
-<% if (user) { %>
-    <h1>Welcome, <%= user.email %></h1>
-    <form id="sign-out-form" action="/users/sign_out" method="POST" style="display: none;"></form>
-    <a href="#" onclick="document.getElementById('sign-out-form').submit();">Sign out</a>
-<% } else { %>
-  <a href="/users/sign_in">Sign in</a>
-  <a href="/users/sign_up">Sign up</a>
-<% } %>
+<% propositions.forEach(proposition => { %>
+  <div class="proposition d-flex">
+    <div class="summary">
+      <div class="stats-item">
+        <%= proposition.cached_votes_total %> <%= pluralize('vote', proposition.cached_votes_total) %>
+      </div>
+      <div class="stats-item">
+        <strong>Yes:</strong> <%= proposition.yes_count %>
+      </div>
+      <div class="stats-item">
+        <strong>No:</strong> <%= proposition.no_count %>
+      </div>
+    </div>
+    <div class="content ps-4">
+      <h5 class="title">
+        <a href="/propositions/<%= proposition.id %>"><%= proposition.body %></a>
+      </h5>
+      <% if (proposition.description) { %>
+        <div class="description">
+          <small>
+            <%- mdRender(proposition.description) %>
+          </small>
+        </div>
+      <% } %>
+      <div class="author-info">
+        <small>
+          proposed by <%= proposition.author_username %> <%= timeAgoInWords(proposition.created_at) %>
+        </small>
+      </div>
+    </div>
+  </div>
+<% }) %>
 
 <%- include('partials/footer') %>

@@ -1,1 +1,24 @@
-<%- mdRender(argument.body) %>
+<div id="argument-<%= argument.id %>" class="argument pt-4 pb-4">
+  <div class="content">
+    <%- mdRender(argument.body) %>
+  </div>
+  <div class="details d-flex justify-content-between">
+    <div class="actions">
+      <small>
+        <span data-controller="clipboard">
+          <a href="#" class="text-secondary" data-action="clipboard#copy" data-clipboard-text="todo">Ref</a>
+        </span>
+        <% if (user && argument.author_id == user.id) { %>
+          <a href="/arguments/<%= argument.slug %>/edit" class="text-secondary">Edit</a>
+          <a href="/arguments/<%= argument.slug %>" data-turbo-method="delete" data-turbo-confirm="Are you sure?" class="text-secondary">Delete</a>
+        <% } %>
+      </small>
+    </div>
+    <div class="author-info">
+      <small>
+        by <a href="#"><%= argument.author_username %></a>
+        <%= timeAgoInWords(argument.created_at) %>
+      </small>
+    </div>
+  </div>
+</div>

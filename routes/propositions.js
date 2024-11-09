@@ -1,9 +1,7 @@
 var express = require('express');
 const Proposition = require('../db/proposition');
 const Argument = require('../db/argument');
-
 var router = express.Router();
-
 
 router.get('/:slug', async (req, res) => {
   let proposition = await Proposition.findBySlug(req.params.slug);

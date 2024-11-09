@@ -13,9 +13,7 @@
 
     <% if (proposition.description) { %>
       <div class="description">
-        <small>
-          <%- mdRender(proposition.description) %>
-        </small>
+          <small><%- mdRender(proposition.description) %></small>
       </div>
     <% } %>
 
@@ -25,7 +23,7 @@
           <span data-controller="clipboard">
             <a href="#" class="text-secondary" data-action="clipboard#copy" data-clipboard-text="todo">Ref</a>
           </span>
-          <% if (proposition.author_id == user.id) { %>
+          <% if (user && proposition.author_id == user.id) { %>
             <a href="/propositions/<%= proposition.slug %>/edit" class="text-secondary">Edit</a>
             <a href="/propositions/<%= proposition.slug %>" data-turbo-method="delete" data-turbo-confirm="Are you sure?" class="text-secondary">Delete</a>
           <% } %>

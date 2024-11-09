@@ -9,8 +9,10 @@ const pool = require('./db/connection');
 var authRouter = require('./routes/auth');
 
 const app = express();
-app.use(express.json());             // for application/json
+app.use(express.json());                            // for application/json
 app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: 'godel, escher, bach',
   saveUninitialized: false,

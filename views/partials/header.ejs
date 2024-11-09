@@ -3,7 +3,45 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
     <title>YbaN</title>
 </head>
 <body>
-  <div class="container">
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <!-- Site Name on the Left -->
+      <a class="navbar-brand" href="/">YbaN</a>
+
+      <!-- Toggle button for responsive navbar -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar content -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <% if (user) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Profile</a>
+            </li>
+            <li class="nav-item">
+              <form id="sign-out-form" action="/users/sign_out" method="POST" style="display: none;"></form>
+              <a class="nav-link" href="#" onclick="document.getElementById('sign-out-form').submit();">Sign out</a>
+            </li>
+          <% } else { %>
+            <!-- Sign Up Button -->
+            <li class="nav-item">
+              <a class="btn btn-outline-primary me-2" href="/users/sign_up">Sign up</a>
+            </li>
+            <!-- Log In Button -->
+            <li class="nav-item">
+              <a class="btn btn-outline-secondary" href="/users/sign_in">Sign in</a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-3">

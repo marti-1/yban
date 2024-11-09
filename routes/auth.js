@@ -4,26 +4,33 @@ var LocalStrategy = require('passport-local');
 var crypto = require('crypto');
 const { promisify } = require('util');
 const User = require('../db/user');
+const { error } = require('console');
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
 
-passport.use(new LocalStrategy(async function verify(email, password, cb) {
-  try {
-    const user = await User.findByEmail(email);
-    if (!user) {
-      return cb(null, false, { message: 'Incorrect username or password.' });
-    }
-    const hashedPassword = await pbkdf2Async(password, user.salt, 310000, 32, 'sha256');
+passport.use(new LocalStrategy(
+  {
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+  async function verify(email, password, cb) {
+    try {
+      const user = await User.findByEmail(email);
+      if (!user) {
+        return cb(null, false, { message: 'Incorrect username or password.' });
+      }
+      const hashedPassword = await pbkdf2Async(password, user.salt, 310000, 32, 'sha256');
 
-    if (!crypto.timingSafeEqual(user.hashed_password, hashedPassword)) {
-      return cb(null, false, { message: 'Incorrect username or password.' });
-    }
+      if (!crypto.timingSafeEqual(user.hashed_password, hashedPassword)) {
+        return cb(null, false, { message: 'Incorrect username or password.' });
+      }
 
-    return cb(null, user);
-  } catch (err) {
-    return cb(err);
+      return cb(null, user);
+    } catch (err) {
+      return cb(err);
+    }
   }
-}));
+));
 
 passport.serializeUser(function(user, cb) {
   process.nextTick(function() {
@@ -45,7 +52,7 @@ router.get('/users/sign_in', function (req, res) {
 
 router.post('/users/sign_in', passport.authenticate('local', {
   successRedirect: '/',
-  failureRedirect: '/login',
+  failureRedirect: '/users/sign_in',
   failureMessage: true
 }));
 

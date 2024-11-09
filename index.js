@@ -9,6 +9,7 @@ const md = require('markdown-it')()
 // const md = new MarkdownIt();
 var pluralize = require('pluralize');
 var { timeAgoInWords } = require('@bluemarblepayroll/time-ago-in-words');
+var flash = require('connect-flash');
 
 // load routes
 var authRouter = require('./routes/auth');
@@ -16,7 +17,7 @@ var homeRouter = require('./routes/home');
 var propositionsRouter = require('./routes/propositions');
 
 const app = express();
-
+app.use(flash());
 app.use(express.json());                            // for application/json
 app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded
 // Serve static files
@@ -36,7 +37,7 @@ app.use(session({
 app.use(passport.authenticate('session'));
 // Middleware to set user in res.locals
 app.use((req, res, next) => {
-  res.locals.user = req.user;
+  res.locals.currentUser = req.user;
   // Define the markdown rendering helper
   res.locals.mdRender = (markdown) => {
     return md.render(markdown);
@@ -49,6 +50,28 @@ app.use((req, res, next) => {
   res.locals.timeAgoInWords = (date) => {
     return timeAgoInWords(date);
   };
+
+  res.locals.errorClass = (errors, field) => {
+    if (!errors) { return '' }
+
+    if (errors.filter((x) => x.path == field).length > 0) {
+      return 'is-invalid';
+    } else {
+      return '';
+    }
+  }
+
+  res.locals.errorMessage = (errors, field) => {
+    if (!errors) { return '' }
+
+    const error = errors.filter((x) => x.path == field);
+    if (error.length > 0) {
+      return `<div class="invalid-feedback">${error[0].msg}</div>`;
+    } else {
+      return '';
+    }
+  }
+
   next();
 });
 

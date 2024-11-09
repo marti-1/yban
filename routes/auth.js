@@ -4,7 +4,8 @@ var LocalStrategy = require('passport-local');
 var crypto = require('crypto');
 const { promisify } = require('util');
 const User = require('../db/user');
-const { error } = require('console');
+const { body, validationResult } = require('express-validator');
+const { signUpValidationRules } = require('../middleware/validators');
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
 
@@ -47,13 +48,15 @@ passport.deserializeUser(function(user, cb) {
 var router = express.Router();
 
 router.get('/users/sign_in', function (req, res) {
-  res.render('sessions/new')
+  res.render('sessions/new', {
+    alert: req.flash("error")
+  });
 });
 
 router.post('/users/sign_in', passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/users/sign_in',
-  failureMessage: true
+  failureFlash: 'Invalid username or password' 
 }));
 
 router.post('/users/sign_out', function (req, res) {
@@ -63,11 +66,19 @@ router.post('/users/sign_out', function (req, res) {
   });
 });
 
-router.get('/users/sign_up', function (req, res) {
-  res.render('registrations/new')
+router.get('/users/sign_up', async function (req, res) {
+  res.render('registrations/new', {user: {email: ''}, errors: []});
 });
 
-router.post('/users/sign_up', async function(req, res, next) {
+router.post('/users/sign_up', signUpValidationRules, async function(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.render('registrations/new', { 
+      errors: errors.array(),
+      user: { email: req.body.email }
+    });
+  }
+
   try {
     const salt = crypto.randomBytes(16);
     const hashedPassword = await pbkdf2Async(req.body.password, salt, 310000, 32, 'sha256');

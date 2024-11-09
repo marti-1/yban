@@ -8,7 +8,7 @@
         <span data-controller="clipboard">
           <a href="#" class="text-secondary" data-action="clipboard#copy" data-clipboard-text="todo">Ref</a>
         </span>
-        <% if (user && argument.author_id == user.id) { %>
+        <% if (currentUser && argument.author_id == currentUser.id) { %>
           <a href="/arguments/<%= argument.slug %>/edit" class="text-secondary">Edit</a>
           <a href="/arguments/<%= argument.slug %>" data-turbo-method="delete" data-turbo-confirm="Are you sure?" class="text-secondary">Delete</a>
         <% } %>

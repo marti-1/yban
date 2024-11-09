@@ -21,7 +21,7 @@
       <!-- Navbar content -->
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav">
-          <% if (user) { %>
+          <% if (currentUser) { %>
             <li class="nav-item">
               <a class="nav-link" href="#">Profile</a>
             </li>
@@ -45,3 +45,8 @@
   </nav>
 
   <div class="container mt-3">
+    <% if (locals.alert && locals.alert.length > 0) { %>
+      <div class="alert alert-danger" role="alert">
+        <%= locals.alert %>
+      </div>
+    <% } %>

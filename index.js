@@ -4,8 +4,9 @@ const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
 var passport = require('passport');
 const pool = require('./db/connection');
-const MarkdownIt = require('markdown-it');
-const md = new MarkdownIt();
+const md = require('markdown-it')()
+            .use(require('markdown-it-footnote'));
+// const md = new MarkdownIt();
 var pluralize = require('pluralize');
 var { timeAgoInWords } = require('@bluemarblepayroll/time-ago-in-words');
 
@@ -15,8 +16,6 @@ var homeRouter = require('./routes/home');
 var propositionsRouter = require('./routes/propositions');
 
 const app = express();
-
-
 
 app.use(express.json());                            // for application/json
 app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded

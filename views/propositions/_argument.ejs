@@ -5,9 +5,7 @@
   <div class="details d-flex justify-content-between">
     <div class="actions">
       <small>
-        <span data-controller="clipboard">
-          <a href="#" class="text-secondary" data-action="clipboard#copy" data-clipboard-text="todo">Ref</a>
-        </span>
+        <a href="#" class="text-secondary copy-text" data-clipboard-text="/propositions/<%= proposition.id %>/<%= proposition.slug %>#argument-<%= argument.id %>">Ref</a>
         <% if (currentUser && argument.author_id == currentUser.id) { %>
           <a href="/propositions/<%= proposition.id %>/arguments/<%= argument.id %>/edit" class="text-secondary">Edit</a>
           <form id="argument-<%= argument.id %>-destroy-form" action="/propositions/<%= proposition.id %>/arguments/<%= argument.id %>?_method=DELETE" method="POST" style="display: none;"></form>

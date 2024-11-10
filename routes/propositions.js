@@ -94,6 +94,22 @@ router.post('/', propositionValidationRules, async (req, res) => {
     author_id: req.user.id
   }
   let proposition = await Proposition.create(params);
+  // add default vote from the author
+  await Proposition.vote(proposition.id, req.user.id, 1);
+  res.redirect(`/propositions/${proposition.id}/${proposition.slug}`);
+});
+
+router.post('/:id/vote', async (req, res) => {
+  // only logged in users can vote
+  if (!req.user) {
+    await setFlash(req, 'alert', 'You must be logged in to vote');
+    res.redirect('back');
+    return;
+  }
+
+  let proposition = await Proposition.findById(req.params.id);
+  let value = req.query.value === 'up' ? 1 : -1;
+  await Proposition.vote(proposition.id, req.user.id, value);
   res.redirect(`/propositions/${proposition.id}/${proposition.slug}`);
 });
 

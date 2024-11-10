@@ -1,11 +1,12 @@
 <%- include('../partials/header') %>
 
 <div id="proposition" class="d-flex justify-content-start mb-4">
-
   <div class="votes me-4">
-    <button class="btn btn-outline-secondary btn-sm">▲</button>
+    <form id="proposition-upvote-form" action="/propositions/<%= proposition.id %>/vote?value=up" method="POST" style="display: none;"></form>
+    <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('proposition-upvote-form').submit();">▲</button>
     <h5 class="pt-2"><%= proposition.cached_votes_total %></h5>
-    <button class="btn btn-outline-secondary btn-sm">▼</button>
+    <form id="proposition-downvote-form" action="/propositions/<%= proposition.id %>/vote?value=down" method="POST" style="display: none;"></form>
+    <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('proposition-downvote-form').submit();">▼</button>
   </div>
 
   <div class="content">

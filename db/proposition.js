@@ -89,6 +89,49 @@ async function destroy(id) {
   `, [id]);
 }
 
+async function vote(id, userId, value) {
+  // start transaction
+  await pool.query('BEGIN');
+  // try finding the vote
+  const res = await pool.query(`
+    SELECT * FROM votes
+    WHERE user_id = $1 AND votable_id = $2 AND votable_type = 'Proposition'
+  `, [userId, id]);
+  // if vote already exists
+  if (res.rows.length > 0) {
+    // if vote has the same value, do nothing
+    if (res.rows[0].value !== value) {
+      // if vote has different value, update it
+      await pool.query(`
+        UPDATE votes
+        SET value = $1, updated_at = NOW()
+        WHERE user_id = $2 AND votable_id = $3 AND votable_type = 'Proposition'
+      `, [value, userId, id]);
+      // update the proposition's cached_votes_total
+      await pool.query(`
+        UPDATE propositions
+        SET cached_votes_total = cached_votes_total + $1
+        WHERE id = $2
+      `, [value * 2, id]);
+    }
+  // else if vote does not exist
+  } else {
+    // create the vote
+    await pool.query(`
+      INSERT INTO votes (user_id, votable_id, votable_type, value, updated_at, created_at)
+      VALUES ($1, $2, 'Proposition', $3, NOW(), NOW())
+    `, [userId, id, value]);
+    // update the proposition's cached_votes_total
+    await pool.query(`
+      UPDATE propositions
+      SET cached_votes_total = cached_votes_total + $1
+      WHERE id = $2
+    `, [value, id]);
+  }
+  // end transaction
+  await pool.query('COMMIT');
+}
+
 module.exports = {
-  all, findBySlug, findById, create, update, destroy
+  all, findBySlug, findById, create, update, destroy, vote
 }

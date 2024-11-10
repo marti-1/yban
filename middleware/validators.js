@@ -17,7 +17,13 @@ const propositionValidationRules = [
   body('body').isLength({ min: 1 }).withMessage('Proposition body cannot be empty')
 ];
 
+const argumentValidationRules = [
+  body('body').isLength({ min: 1 }).withMessage('Argument body cannot be empty'),
+  body('side').isIn(['yes', 'no']).withMessage('Argument side must be either yes or no')
+];
+
 module.exports = {
   signUpValidationRules,
-  propositionValidationRules
+  propositionValidationRules,
+  argumentValidationRules
 };

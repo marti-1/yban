@@ -3,7 +3,7 @@
 <div class="card">
   <div class="card-body">
     <h2>Edit proposition</h2>
-    <form action="/propositions/<%= proposition.id %>?_method=PUT" method="post">
+    <form action="/propositions/<%= proposition.id %>?_method=PUT" method="POST">
       <%- include('_form', { proposition: proposition }) %>
     </form>
   </div>

@@ -15,6 +15,7 @@ const viewHelpers = require('./helpers/view');
 const authRouter = require('./routes/auth');
 const homeRouter = require('./routes/home');
 const propositionsRouter = require('./routes/propositions');
+const argumentsRouter = require('./routes/arguments');
 
 
 const app = express();
@@ -61,6 +62,8 @@ const port = 3000
 
 app.use('/', authRouter);
 app.use('/', homeRouter);
+
+app.use('/propositions', argumentsRouter);
 app.use('/propositions', propositionsRouter);
 
 app.listen(port, () => {

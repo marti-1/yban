@@ -8,14 +8,12 @@ const Argument = require('../db/argument');
 var { propositionValidationRules } = require('../middleware/validators');
 const setFlash = require('../helpers/flash');
 
-router.get('/:id/edit', async (req, res) => {
+router.get('/propositions/:id/edit', async (req, res) => {
   let proposition = await Proposition.findById(req.params.id);
   res.render('propositions/edit', { proposition: proposition });
 });
 
 router.put('/:id', propositionValidationRules, async (req, res) => {
-  let proposition = await Proposition.findById(req.params.id);
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.render('propositions/edit', { 
@@ -28,6 +26,8 @@ router.put('/:id', propositionValidationRules, async (req, res) => {
     });
     return;
   }
+
+  let proposition = await Proposition.findById(req.params.id);
 
   // only author should be allowed to update
   if (req.user.id !== proposition.author_id) {

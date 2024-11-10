@@ -1,0 +1,12 @@
+<%- include('../partials/header') %>
+
+<div class="card">
+  <div class="card-body">
+    <h2>New argument</h2>
+    <form id="argument_form" action="/propositions/<%= proposition.id %>/arguments/" method="POST">
+      <%- include('_form', { argument: argument }) %>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

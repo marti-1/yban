@@ -66,13 +66,11 @@ async function create(params) {
     }, '').slice(0, -1);
   }
   // Insert the proposition into the database
-  await pool.query(`
+  return await pool.query(`
     INSERT INTO propositions (body, description, author_id, slug, created_at, updated_at)
     VALUES ($1, $2, $3, $4, NOW(), NOW())
     RETURNING *
   `, [params.body, params.description || '', params.author_id, slug]);
-  // Return the proposition
-  return findBySlug(slug);
 }
 
 async function update(id, params) {

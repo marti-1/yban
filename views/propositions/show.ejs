@@ -37,9 +37,7 @@
           <%= timeAgoInWords(proposition.created_at) %>
         </small>
       </div>
-
     </div>
-
   </div>
 </div>
 
@@ -47,22 +45,22 @@
   <div class="col">
       <div class="yes-side-header d-flex justify-content-between">
           <div class="name">Yes</div>
-          <a class="btn btn-dark" href="#">Add</a>
+          <a class="btn btn-dark" href="/propositions/<%= proposition.id %>/new?side=yes">Add</a>
       </div>
       <div class="yes-side-arguments">
         <% proposition.yes_arguments.forEach(function(argument) { %>
-          <%- include('_argument', { argument: argument }) %>
+          <%- include('_argument', { proposition: proposition, argument: argument }) %>
         <% }); %>
       </div>
   </div>
   <div class="col">
       <div class="no-side-header d-flex justify-content-between">
           <div class="name">No</div>
-          <a class="btn btn-dark" href="#">Add</a>
+          <a class="btn btn-dark" href="/propositions/<%= proposition.id %>/new?side=no">Add</a>
       </div>
       <div class="no-side-arguments">
         <% proposition.no_arguments.forEach(function(argument) { %>
-          <%- include('_argument', { argument: argument }) %>
+          <%- include('_argument', { proposition: proposition, argument: argument }) %>
         <% }); %>
       </div>
   </div>

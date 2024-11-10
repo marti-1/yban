@@ -1,6 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var LocalStrategy = require('passport-local');
+var GoogleStrategy = require('passport-google-oauth20').Strategy;
 var crypto = require('crypto');
 const { promisify } = require('util');
 const User = require('../db/user');
@@ -8,6 +9,24 @@ const { validationResult } = require('express-validator');
 const { signUpValidationRules } = require('../middleware/validators');
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
+
+passport.use(new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "/users/auth/google_oauth2/callback"
+}, async function(accessToken, refreshToken, profile, cb) {
+  try {
+    let user = await User.findByGoogleId(profile.id);
+    if (!user) {
+      user = await User.createUser({email: profile.emails[0].value, googleId: profile.id});
+      return cb(null, user);
+    } else {
+      return cb(null, user);
+    }
+  } catch (err) {
+    return cb(err);
+  }
+}));
 
 passport.use(new LocalStrategy(
   {
@@ -46,6 +65,16 @@ passport.deserializeUser(function(user, cb) {
 });
 
 var router = express.Router();
+
+router.post('/users/auth/google_oauth2', 
+  passport.authenticate('google', { scope: ['email'] }));
+
+router.get('/users/auth/google_oauth2/callback',
+  passport.authenticate('google', { failureRedirect: '/users/sign_in' }),
+  function(req, res) {
+    res.redirect('/');
+  }
+);
 
 router.get('/users/sign_in', function (req, res) {
   res.render('sessions/new', {errors: []});
@@ -90,9 +119,8 @@ router.post('/users/sign_up', signUpValidationRules, async function(req, res, ne
   }
 
   try {
-    const salt = crypto.randomBytes(16);
-    const hashedPassword = await pbkdf2Async(req.body.password, salt, 310000, 32, 'sha256');
-    const user = await User.createUser(req.body.email, hashedPassword, salt);
+    // const user = await User.createUser(req.body.email, hashedPassword, salt);
+    let user = await User.createUser({email: req.body.email, password: password});
     await new Promise((resolve, reject) => {
       req.login(user, (err) => {
         if (err) reject(err);

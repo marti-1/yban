@@ -5,6 +5,13 @@
     <div class="card">
       <div class="card-body">
         <h2 class="mb-4">Sign up</h2>
+
+        <%- include('../partials/_oauth', {action: 'Sign up'}) %>
+
+        <div class="line-with-text mb-3">
+          <div>OR</div>
+        </div>
+
         <form action="/users/sign_up" method="post">
           <div class="field">
             <label class="form-label" for="email">Email</label>

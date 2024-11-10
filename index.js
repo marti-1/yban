@@ -1,3 +1,5 @@
+require('dotenv-safe').config();
+
 const express = require('express');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
@@ -18,7 +20,7 @@ const propositionsRouter = require('./routes/propositions');
 const app = express();
 
 app.use(session({
-  secret: 'godel, escher, bach',
+  secret: process.env.SESSION_SECRET,
   saveUninitialized: false,
   resave: false,
   cookie: {

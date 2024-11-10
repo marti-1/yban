@@ -13,7 +13,7 @@ const pbkdf2Async = promisify(crypto.pbkdf2);
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/users/auth/google_oauth2/callback"
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
 }, async function(accessToken, refreshToken, profile, cb) {
   try {
     let user = await User.findByGoogleId(profile.id);

@@ -1,20 +1,19 @@
 const express = require('express');
 const session = require('express-session');
-const flashMessages = require('./middleware/flashMessages');
 const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
 var passport = require('passport');
 const pool = require('./db/connection');
-const md = require('markdown-it')()
-            .use(require('markdown-it-footnote'));
-var pluralize = require('pluralize');
-var { timeAgoInWords } = require('@bluemarblepayroll/time-ago-in-words');
 const methodOverride = require('method-override');
 
+const flashMessages = require('./middleware/flashMessages');
+const viewHelpers = require('./helpers/view');
+
 // load routes
-var authRouter = require('./routes/auth');
-var homeRouter = require('./routes/home');
-var propositionsRouter = require('./routes/propositions');
+const authRouter = require('./routes/auth');
+const homeRouter = require('./routes/home');
+const propositionsRouter = require('./routes/propositions');
+
 
 const app = express();
 
@@ -31,6 +30,8 @@ app.use(session({
   }),
 }));
 app.use(passport.authenticate('session'));
+// add flash messages middleware
+app.use(flashMessages);
 
 app.use(methodOverride('_method'));
 app.use(express.json());                            // for application/json
@@ -41,40 +42,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to set user in res.locals
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
-  // Define the markdown rendering helper
-  res.locals.mdRender = (markdown) => {
-    return md.render(markdown);
-  };
-  // Define the pluralize helper
-  res.locals.pluralize = (word, count) => {
-    return pluralize(word, count);
-  };
-  // Define the timeAgoInWords helper
-  res.locals.timeAgoInWords = (date) => {
-    return timeAgoInWords(date);
-  };
-
-  res.locals.errorClass = (errors, field) => {
-    if (!errors) { return '' }
-
-    if (errors.filter((x) => x.path == field).length > 0) {
-      return 'is-invalid';
-    } else {
-      return '';
-    }
-  }
-
-  res.locals.errorMessage = (errors, field) => {
-    if (!errors) { return '' }
-
-    const error = errors.filter((x) => x.path == field);
-    if (error.length > 0) {
-      return `<div class="invalid-feedback">${error[0].msg}</div>`;
-    } else {
-      return '';
-    }
-  }
-
+  res.locals.mdRender = viewHelpers.mdRender;
+  res.locals.pluralize = viewHelpers.pluralizeHelper;
+  res.locals.timeAgoInWords = viewHelpers.timeAgoInWordsHelper;
+  res.locals.errorClass = viewHelpers.errorClass;
+  res.locals.errorMessage = viewHelpers.errorMessage;
   next();
 });
 

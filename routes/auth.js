@@ -54,9 +54,6 @@ router.get('/users/sign_in', function (req, res) {
 router.post('/users/sign_in', function(req, res, next) {
   passport.authenticate('local', function(err, user, info) {
     if (err) { return next(err); }
-    console.log(err)
-    console.log(user)
-    console.log(info)
     if (!user) { 
       return res.render('sessions/new', { 
         errors : [

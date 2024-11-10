@@ -32,6 +32,10 @@ async function findById(id) {
   return findBy('id', id);
 }
 
+async function findByBody(body) {
+  return findBy('body', body);
+}
+
 async function findBy(field, value) {
   const res = await pool.query(`
     SELECT
@@ -133,5 +137,5 @@ async function vote(id, userId, value) {
 }
 
 module.exports = {
-  all, findBySlug, findById, create, update, destroy, vote
+  all, findBySlug, findById, create, update, destroy, vote, findByBody
 }

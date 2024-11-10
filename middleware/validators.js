@@ -1,6 +1,6 @@
-// middleware/validators.js
 const { body } = require('express-validator');
-const User = require('../db/user'); // Adjust the path as necessary
+const User = require('../db/user'); 
+const Proposition = require('../db/proposition'); 
 
 const signUpValidationRules = [
   body('email').isEmail().withMessage('Enter a valid email address')
@@ -15,6 +15,12 @@ const signUpValidationRules = [
 
 const propositionValidationRules = [
   body('body').isLength({ min: 1 }).withMessage('Proposition body cannot be empty')
+    .custom(async (body) => {
+      const proposition = await Proposition.findByBody(body);
+      if (proposition) {
+        throw new Error('Proposition already exists');
+      }
+    })
 ];
 
 const argumentValidationRules = [

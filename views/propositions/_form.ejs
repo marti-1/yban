@@ -1,0 +1,15 @@
+<div class="field mb-3">
+  <label class="form-label" for="title">Name</label>
+  <input class="form-control <%= errorClass(proposition.errors, 'body') %>" id="body" name="body" type="text" placeholder="Truth is correspondence to facts" value="<%= proposition.body %>" autofocus>
+  <%- errorMessage(proposition.errors, 'body') %>
+</div>
+
+<div class="field mb-3">
+  <label class="form-label" for="description">Short description</label>
+  <textarea class="form-control <%= errorClass(proposition.errors, 'description') %>" id="description" name="description" placeholder="This view is expressed by the [correspondence theory of truth](https://en.wikipedia.org/wiki/Correspondence_theory_of_truth)."><%= proposition.description %></textarea>
+  <%- errorMessage(proposition.errors, 'description') %>
+</div>
+
+<div>
+  <button class="btn btn-primary" type="submit">Submit</button>
+</div>

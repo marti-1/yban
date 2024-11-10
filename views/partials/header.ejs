@@ -50,3 +50,8 @@
         <%= locals.alert %>
       </div>
     <% } %>
+    <% if (locals.success && locals.success.length > 0) { %>
+      <div class="alert alert-success" role="alert">
+        <%= locals.success %>
+      </div>
+    <% } %>

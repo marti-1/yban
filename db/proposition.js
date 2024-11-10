@@ -1,4 +1,5 @@
 const pool = require('./connection');
+var slugify = require('slugify');
 
 async function all() {
   const res = await pool.query(`
@@ -24,16 +25,71 @@ async function all() {
 }
 
 async function findBySlug(slug) {
+  return findBy('slug', slug);
+}
+
+async function findById(id) {
+  return findBy('id', id);
+}
+
+async function findBy(field, value) {
   const res = await pool.query(`
     SELECT
-      p.*, u.username as author_username
+      p.id,
+      p.slug,
+      p.body,
+      p.description,
+      p.cached_votes_total, 
+      p.created_at,
+      p.updated_at,
+      CAST(p.author_id AS INTEGER) as author_id,
+      u.username as author_username
     FROM propositions p 
     INNER JOIN users u on p.author_id = u.id
-    WHERE p.slug = $1
-  `, [slug]);
+    WHERE p.${field} = $1
+  `, [value]);
   return res.rows[0];
 }
 
+async function create(params) {
+  // Create a slug for the proposition
+  let tmpSlug = slugify(params.body, { lower: true });
+  let slug = tmpSlug;
+  
+  if (tmpSlug.length > 80) {
+    let slugWords = tmpSlug.split('-');
+    slug = slugWords.reduce((acc, word) => {
+      if (acc.length + word.length + 1 <= 80) {
+        return acc + word + '-';
+      }
+      return acc;
+    }, '').slice(0, -1);
+  }
+  // Insert the proposition into the database
+  await pool.query(`
+    INSERT INTO propositions (body, description, author_id, slug, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, NOW(), NOW())
+    RETURNING *
+  `, [params.body, params.description || '', params.author_id, slug]);
+  // Return the proposition
+  return findBySlug(slug);
+}
+
+async function update(id, params) {
+  await pool.query(`
+    UPDATE propositions
+    SET body = $1, description = $2, updated_at = NOW()
+    WHERE id = $3
+  `, [params.body, params.description, id]);
+}
+
+async function destroy(id) {
+  await pool.query(`
+    DELETE FROM propositions
+    WHERE id = $1
+  `, [id]);
+}
+
 module.exports = {
-  all, findBySlug
+  all, findBySlug, findById, create, update, destroy
 }

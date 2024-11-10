@@ -23,9 +23,10 @@
           <span data-controller="clipboard">
             <a href="#" class="text-secondary" data-action="clipboard#copy" data-clipboard-text="todo">Ref</a>
           </span>
-          <% if (user && proposition.author_id == user.id) { %>
-            <a href="/propositions/<%= proposition.slug %>/edit" class="text-secondary">Edit</a>
-            <a href="/propositions/<%= proposition.slug %>" data-turbo-method="delete" data-turbo-confirm="Are you sure?" class="text-secondary">Delete</a>
+          <% if (currentUser && proposition.author_id == currentUser.id) { %>
+            <a href="/propositions/<%= proposition.id %>/edit" class="text-secondary">Edit</a>
+            <form id="proposition-destroy-form" action="/propositions/<%= proposition.id %>?_method=DELETE" method="POST" style="display: none;"></form>
+            <a href="#" onclick="event.preventDefault(); if(confirm('Are you sure?')) { document.getElementById('proposition-destroy-form').submit(); }" class="text-secondary">Delete</a>
           <% } %>
         </small>
       </div>

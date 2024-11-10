@@ -1,5 +1,10 @@
 <%- include('partials/header') %>
 
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">Propositions</h2>
+  <a href="/propositions/new" class="btn btn-primary">New Proposition</a>
+</div>
+
 <% propositions.forEach(proposition => { %>
   <div class="proposition d-flex">
     <div class="summary">
@@ -15,7 +20,7 @@
     </div>
     <div class="content ps-4">
       <h5 class="title">
-        <a href="/propositions/<%= proposition.slug %>"><%= proposition.body %></a>
+        <a href="/propositions/<%= proposition.id %>/<%= proposition.slug %>"><%= proposition.body %></a>
       </h5>
       <% if (proposition.description) { %>
         <div class="description">

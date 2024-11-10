@@ -13,6 +13,11 @@ const signUpValidationRules = [
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ];
 
+const propositionValidationRules = [
+  body('body').isLength({ min: 1 }).withMessage('Proposition body cannot be empty')
+];
+
 module.exports = {
-  signUpValidationRules
+  signUpValidationRules,
+  propositionValidationRules
 };

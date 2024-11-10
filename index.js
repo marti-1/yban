@@ -1,15 +1,15 @@
 const express = require('express');
 const session = require('express-session');
+const flashMessages = require('./middleware/flashMessages');
 const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
 var passport = require('passport');
 const pool = require('./db/connection');
 const md = require('markdown-it')()
             .use(require('markdown-it-footnote'));
-// const md = new MarkdownIt();
 var pluralize = require('pluralize');
 var { timeAgoInWords } = require('@bluemarblepayroll/time-ago-in-words');
-var flash = require('connect-flash');
+const methodOverride = require('method-override');
 
 // load routes
 var authRouter = require('./routes/auth');
@@ -17,11 +17,7 @@ var homeRouter = require('./routes/home');
 var propositionsRouter = require('./routes/propositions');
 
 const app = express();
-app.use(flash());
-app.use(express.json());                            // for application/json
-app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
   secret: 'godel, escher, bach',
   saveUninitialized: false,
@@ -35,6 +31,13 @@ app.use(session({
   }),
 }));
 app.use(passport.authenticate('session'));
+
+app.use(methodOverride('_method'));
+app.use(express.json());                            // for application/json
+app.use(express.urlencoded({extended:true}));       // for application/x-www-form-urlencoded
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Middleware to set user in res.locals
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;

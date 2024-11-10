@@ -1,0 +1,12 @@
+<%- include('../partials/header') %>
+
+<div class="card">
+  <div class="card-body">
+    <h2>Make new proposition</h2>
+    <form action="/propositions" method="post">
+      <%- include('_form', { proposition: proposition }) %>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

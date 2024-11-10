@@ -4,7 +4,7 @@ var LocalStrategy = require('passport-local');
 var crypto = require('crypto');
 const { promisify } = require('util');
 const User = require('../db/user');
-const { body, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const { signUpValidationRules } = require('../middleware/validators');
 
 const pbkdf2Async = promisify(crypto.pbkdf2);
@@ -48,16 +48,28 @@ passport.deserializeUser(function(user, cb) {
 var router = express.Router();
 
 router.get('/users/sign_in', function (req, res) {
-  res.render('sessions/new', {
-    alert: req.flash("error")
-  });
+  res.render('sessions/new', {errors: []});
 });
 
-router.post('/users/sign_in', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/users/sign_in',
-  failureFlash: 'Invalid username or password' 
-}));
+router.post('/users/sign_in', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) { return next(err); }
+    console.log(err)
+    console.log(user)
+    console.log(info)
+    if (!user) { 
+      return res.render('sessions/new', { 
+        errors : [
+          {path: 'email', msg: 'Invalid username or password'}
+        ]
+      }); 
+    }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.redirect('/');
+    });
+  })(req, res, next);
+});
 
 router.post('/users/sign_out', function (req, res) {
   req.logout(function(err) {
@@ -77,6 +89,7 @@ router.post('/users/sign_up', signUpValidationRules, async function(req, res, ne
       errors: errors.array(),
       user: { email: req.body.email }
     });
+    return;
   }
 
   try {

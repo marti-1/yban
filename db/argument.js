@@ -8,6 +8,7 @@ async function ofProposition(proposition_id, yes) {
     FROM arguments a
     INNER JOIN users u on a.author_id = u.id
     WHERE a.proposition_id = $1 AND a.side = $2
+    ORDER BY a.created_at ASC
   `, [proposition_id, yes]);
   return res.rows;
 }

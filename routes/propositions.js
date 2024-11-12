@@ -8,7 +8,7 @@ const Argument = require('../db/argument');
 var { propositionValidationRules } = require('../middleware/validators');
 const setFlash = require('../helpers/flash');
 
-router.get('/propositions/:id/edit', async (req, res) => {
+router.get('/:id/edit', async (req, res) => {
   let proposition = await Proposition.findById(req.params.id);
   res.render('propositions/edit', { proposition: proposition });
 });

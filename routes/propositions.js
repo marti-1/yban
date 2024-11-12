@@ -65,7 +65,14 @@ router.get('/:id/:slug', async (req, res) => {
   res.render('propositions/show', { proposition: proposition });
 });
 
-router.get('/new', (req, res) => {
+router.get('/new', async (req, res) => {
+  // if user is not logged in, should redirect to login page
+  if (!req.user) {
+    await setFlash(req, 'alert', 'You must be signed in to create a proposition');
+    res.redirect('/users/sign_in');
+    return;
+  }
+
   res.render('propositions/new', {
     proposition: {
       body: '',

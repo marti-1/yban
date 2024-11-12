@@ -18,6 +18,13 @@ router.get('/:propositions_id/arguments/:id/edit', async (req, res) => {
 });
 
 router.get('/:proposition_id/new', async (req, res) => {
+  // only logged in users can create arguments
+  if (!req.user) {
+    await setFlash(req, 'alert', 'You must be logged in to create an argument');
+    res.redirect('/users/sign_in');
+    return;
+  }
+
   let proposition = await Proposition.findById(req.params.proposition_id);
   res.render('arguments/new', { 
     proposition: proposition, 

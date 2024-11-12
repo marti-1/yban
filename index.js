@@ -25,7 +25,7 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 365 * 10 // 10 years
   },
   store: new pgSession({
     pool: pool,                // Connection pool
@@ -53,7 +53,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use(express.static(path.join(__dirname, 'node_modules', 'bootstrap', 'dist')))  
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

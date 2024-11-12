@@ -119,7 +119,6 @@ router.post('/users/sign_up', signUpValidationRules, async function(req, res, ne
   }
 
   try {
-    // const user = await User.createUser(req.body.email, hashedPassword, salt);
     let user = await User.createUser({email: req.body.email, password: password});
     await new Promise((resolve, reject) => {
       req.login(user, (err) => {
@@ -133,5 +132,12 @@ router.post('/users/sign_up', signUpValidationRules, async function(req, res, ne
     next(err);
   }
 });
+
+
+router.get('/users/:username', async (req, res) => {
+  let user = await User.findByUsername(req.params.username);
+  res.render('users/show', { user: user });
+});
+
 
 module.exports = router;

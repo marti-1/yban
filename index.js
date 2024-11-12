@@ -11,11 +11,14 @@ const methodOverride = require('method-override');
 const flashMessages = require('./middleware/flashMessages');
 const viewHelpers = require('./helpers/view');
 
+const User = require('./db/user');
+
 // load routes
 const authRouter = require('./routes/auth');
 const homeRouter = require('./routes/home');
 const propositionsRouter = require('./routes/propositions');
 const argumentsRouter = require('./routes/arguments');
+const usersRouter = require('./routes/users');
 
 
 const app = express();
@@ -43,8 +46,12 @@ app.use(express.urlencoded({extended:true}));       // for application/x-www-for
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to set user in res.locals
-app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
+app.use(async (req, res, next) => {
+  if (req.user) {
+    res.locals.currentUser = await User.findById(req.user.id);
+  } else {
+    res.locals.currentUser = null;
+  }
   res.locals.mdRender = viewHelpers.mdRender;
   res.locals.pluralize = viewHelpers.pluralizeHelper;
   res.locals.timeAgoInWords = viewHelpers.timeAgoInWordsHelper;
@@ -64,6 +71,8 @@ app.use('/', homeRouter);
 
 app.use('/propositions', argumentsRouter);
 app.use('/propositions', propositionsRouter);
+app.use('/', usersRouter);
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

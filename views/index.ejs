@@ -31,7 +31,7 @@
       <% } %>
       <div class="author-info">
         <small>
-          proposed by <%= proposition.author_username %> <%= timeAgoInWords(proposition.created_at) %>
+          proposed by <a href="/users/<%= proposition.author_username %>"><%= proposition.author_username %></a> <%= timeAgoInWords(proposition.created_at) %>
         </small>
       </div>
     </div>

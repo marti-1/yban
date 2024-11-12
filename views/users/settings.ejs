@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+
+<ul class="nav nav-underline mb-3">
+  <li class="nav-item">
+    <a href="/users/<%= currentUser.username %>" class="nav-link">Profile</a>
+  </li>
+  
+  <li class="nav-item">
+      <a href="/settings/profile" class="nav-link active">Settings</a>
+  </li>
+</ul>
+
+<form action="/settings/profile?_method=PUT" method="POST">
+  <div class="field mb-3">
+    <label for="username" class="form-label">Username</label><br />
+    <input type="text" name="username" id="username" class="form-control <%= errorClass(user.errors, 'username') %>" value="<%= user.username %>" />
+    <%- errorMessage(user.errors, 'username') %>
+  </div>
+  <div class="field mb-3">
+    <label for="email" class="form-label">Bio</label><br />
+    <textarea name="bio" id="bio" class="form-control <%= errorClass(user.errors, 'bio') %>"><%= user.bio %></textarea>
+    <%- errorMessage(user.errors, 'bio') %>
+  </div>
+  <div class="actions">
+    <input type="submit" value="Update" class="btn btn-primary" />
+  </div> 
+</form>
+
+<%- include('../partials/footer') %>

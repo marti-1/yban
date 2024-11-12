@@ -28,8 +28,25 @@ const argumentValidationRules = [
   body('side').isIn(['yes', 'no']).withMessage('Argument side must be either yes or no')
 ];
 
+const blacklistedUsernames = ['sign_in', 'sign_out', 'sign_up'];
+const userSettingsValidationRules = [
+  body('username').isLength({ min: 1 }).withMessage('Username cannot be empty')
+    .custom(async (username, { req }) => {
+      const user = await User.findByUsername(username);
+      if (user && user.id !== req.user.id) {
+        throw new Error('Username already in use');
+      }
+    })
+    .custom(async (username) => {
+      if (blacklistedUsernames.includes(username)) {
+        throw new Error('Username is not allowed');
+      }
+    })
+]
+
 module.exports = {
   signUpValidationRules,
   propositionValidationRules,
-  argumentValidationRules
+  argumentValidationRules,
+  userSettingsValidationRules
 };

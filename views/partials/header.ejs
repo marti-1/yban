@@ -19,7 +19,6 @@
     <title>YbaN</title>
 </head>
 <body>
-
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
       <!-- Site Name on the Left -->
@@ -35,7 +34,7 @@
         <ul class="navbar-nav">
           <% if (currentUser) { %>
             <li class="nav-item">
-              <a class="nav-link" href="#">Profile</a>
+              <a class="nav-link" href="/users/<%= currentUser.username %>">Profile</a>
             </li>
             <li class="nav-item">
               <form id="sign-out-form" action="/users/sign_out" method="POST" style="display: none;"></form>

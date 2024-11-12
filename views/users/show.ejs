@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+
+<ul class="nav nav-underline mb-3">
+  <li class="nav-item">
+    <a href="/users/<%= user.username %>" class="nav-link active">Profile</a>
+  </li>
+  
+  <% if (currentUser && currentUser.username === user.username) { %>
+  <li class="nav-item">
+      <a href="/settings/profile" class="nav-link">Settings</a>
+  </li>
+  <% } %>
+</ul>
+
+<h2><%= user.username %></h2>
+
+<p class="bio">
+  <strong>Bio:</strong> <%= user.bio || "This user likes to keep an air of mystery around them." %>
+</p>
+
+<%- include('../partials/footer') %>

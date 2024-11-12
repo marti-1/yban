@@ -14,6 +14,10 @@ async function findByUsername(username) {
   return findBy('username', username);
 }
 
+async function findById(id) {
+  return findBy('id', id);
+}
+
 async function createUser(params) {
   // if password is set
   if (params.password) {
@@ -42,6 +46,19 @@ async function createUser(params) {
       ]);
     return res.rows[0];
   }
+}
+
+async function updateUsernameAndBio(id, params) {
+  let res = await pool.query(`
+    UPDATE users
+    SET username = $2, bio = $3
+    WHERE id = $1
+    RETURNING *`, [
+      id,
+      params.username,
+      params.bio
+    ]);
+  return res.rows[0];
 }
 
 /*
@@ -74,7 +91,9 @@ function buildTmpUsername(email) {
 
 module.exports = {
   findByUsername, 
-  findByEmail, 
+  findByEmail,
+  findById,
+  updateUsernameAndBio,
   createUser,
   findByGoogleId
 };

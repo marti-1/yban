@@ -32,7 +32,7 @@
 
       <div>
         <small>
-          by <a href="#"><%= proposition.author_username %></a>
+          by <a href="/users/<%= proposition.author_username %>"><%= proposition.author_username %></a>
           <%= timeAgoInWords(proposition.created_at) %>
         </small>
       </div>

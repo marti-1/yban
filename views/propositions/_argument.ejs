@@ -15,7 +15,7 @@
     </div>
     <div class="author-info">
       <small>
-        by <a href="#"><%= argument.author_username %></a>
+        by <a href="/users/<%= proposition.author_username %>"><%= argument.author_username %></a>
         <%= timeAgoInWords(argument.created_at) %>
       </small>
     </div>

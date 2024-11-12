@@ -15,12 +15,12 @@ const signUpValidationRules = [
 
 const propositionValidationRules = [
   body('body').isLength({ min: 1 }).withMessage('Proposition body cannot be empty')
-    .custom(async (body) => {
-      const proposition = await Proposition.findByBody(body);
-      if (proposition) {
-        throw new Error('Proposition already exists');
-      }
-    })
+    // .custom(async (body) => {
+    //   const proposition = await Proposition.findByBody(body);
+    //   if (proposition) {
+    //     throw new Error('Proposition already exists');
+    //   }
+    // })
 ];
 
 const argumentValidationRules = [

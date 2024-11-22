@@ -22,8 +22,15 @@ function buildScripts() {
     .pipe(gulp.dest('public'));
 }
 
-const buildAll = gulp.series(buildStyles, buildScripts);
+
+function buildImages() {
+  return gulp.src('assets/images/**.{gif,jpg,png,svg,ico}', { encoding: false })
+    .pipe(gulp.dest('public/images'))
+}
+
+const buildAll = gulp.series(buildStyles, buildScripts, buildImages);
 
 exports.buildStyles = buildStyles;
 exports.buildScripts = buildScripts;
+exports.buildImages = buildImages;
 exports.buildAll = buildAll;

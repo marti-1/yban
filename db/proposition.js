@@ -1,6 +1,56 @@
 const pool = require('./connection');
 var slugify = require('slugify');
 
+function empty() {
+  return {
+    slug: '',
+    body: '',
+    description: '',
+    author_id: null,
+    cached_votes_total: 0,
+  }
+}
+
+async function deserializeReq(req) {
+  let p = empty();
+  if (req.params.id) {
+    p = await findById(req.params.id);
+  }
+
+  if (req.body.body !== undefined) {
+    p.body = req.body.body;
+  }
+  if (req.body.description !== undefined) {
+    p.description = req.body.description;
+  }
+  return p;
+}
+
+async function validate(p) {
+  let errors = [];
+  if (p.body == null || p.body.length == 0) {
+    errors.push({
+      path: 'body',
+      msg: 'Body cannot be empty',
+      value: p.body
+    });
+  }
+  // body must be unique
+  let res = await pool.query(`
+    SELECT id FROM propositions WHERE LOWER(body) = LOWER($1)
+    `, [p.body]);
+  let existingProposition = res.rows[0];
+
+  if (existingProposition && existingProposition.id !== p.id) {
+    errors.push({
+      path: 'body',
+      msg: 'Proposition already exists',
+      value: p.body
+    });
+  }
+  p.errors = errors;
+}
+
 async function all() {
   const res = await pool.query(`
     SELECT 
@@ -55,11 +105,11 @@ async function findBy(field, value) {
   return res.rows[0];
 }
 
-async function create(params) {
+function makeSlug(body) {
   // Create a slug for the proposition
-  let tmpSlug = slugify(params.body, { lower: true });
+  let tmpSlug = slugify(body, { lower: true });
   let slug = tmpSlug;
-  
+  // make sure we don't exceed the 80 character limit
   if (tmpSlug.length > 80) {
     let slugWords = tmpSlug.split('-');
     slug = slugWords.reduce((acc, word) => {
@@ -69,21 +119,45 @@ async function create(params) {
       return acc;
     }, '').slice(0, -1);
   }
+  return slug;
+}
+
+async function create(params) {
   // Insert the proposition into the database
   let res = await pool.query(`
-    INSERT INTO propositions (body, description, author_id, slug, created_at, updated_at)
-    VALUES ($1, $2, $3, $4, NOW(), NOW())
+    INSERT INTO propositions (
+      body, 
+      description, 
+      author_id, 
+      slug, 
+      created_at, 
+      updated_at
+    ) VALUES ($1, $2, $3, $4, NOW(), NOW())
     RETURNING *
-  `, [params.body, params.description || '', params.author_id, slug]);
+  `, [
+    params.body, 
+    params.description || '', 
+    params.author_id, 
+    params.slug
+  ]);
   return res.rows[0];
 }
 
-async function update(id, params) {
+async function update(params) {
   await pool.query(`
     UPDATE propositions
     SET body = $1, description = $2, updated_at = NOW()
     WHERE id = $3
-  `, [params.body, params.description, id]);
+  `, [params.body, params.description, params.id]);
+}
+
+async function store(proposition) {
+  if (proposition.id) {
+    await update(proposition);
+  } else {
+    let p = await create(proposition);
+    proposition.id = p.id;
+  }
 }
 
 async function destroy(id) {
@@ -137,5 +211,5 @@ async function vote(id, userId, value) {
 }
 
 module.exports = {
-  all, findBySlug, findById, create, update, destroy, vote, findByBody
+  empty, all, findBySlug, findById, destroy, vote, findByBody, deserializeReq, validate, store, makeSlug
 }

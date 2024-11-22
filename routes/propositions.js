@@ -1,11 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-const { validationResult } = require('express-validator');
-
 const Proposition = require('../db/proposition');
 const Argument = require('../db/argument');
-var { propositionValidationRules } = require('../middleware/validators');
 const setFlash = require('../helpers/flash');
 
 router.get('/:id/edit', async (req, res) => {
@@ -13,22 +10,13 @@ router.get('/:id/edit', async (req, res) => {
   res.render('propositions/edit', { proposition: proposition });
 });
 
-router.put('/:id', propositionValidationRules, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.render('propositions/edit', { 
-      proposition: {
-        id: req.params.id,
-        body: req.body.body, 
-        description: req.body.description,
-        errors: errors.array()
-      }
-    });
+router.put('/:id', async (req, res) => {
+  let proposition = await Proposition.deserializeReq(req);
+  await Proposition.validate(proposition);
+  if (proposition.errors.length > 0) {
+    res.render('propositions/edit', { proposition: proposition });
     return;
   }
-
-  let proposition = await Proposition.findById(req.params.id);
-
   // only author should be allowed to update
   if (req.user.id !== proposition.author_id) {
     // redirect back with flash alert message
@@ -36,8 +24,7 @@ router.put('/:id', propositionValidationRules, async (req, res) => {
     res.redirect('back');
     return;
   }
-
-  await Proposition.update(req.params.id, req.body);
+  await Proposition.store(proposition);
   // redirect back to the proposition
   await setFlash(req, 'success', 'Proposition updated successfully');
   res.redirect(`/propositions/${req.params.id}/${proposition.slug}`);
@@ -48,7 +35,7 @@ router.delete('/:id', async (req, res) => {
   // only author should be allowed to update
   if (req.user.id !== proposition.author_id) {
     // redirect back with flash alert message
-    await setFlash(req, 'alert', 'You are not allowed to update this proposition');
+    await setFlash(req, 'alert', 'You are not allowed to delete this proposition');
     res.redirect('back');
     return;
   }
@@ -73,34 +60,19 @@ router.get('/new', async (req, res) => {
     return;
   }
 
-  res.render('propositions/new', {
-    proposition: {
-      body: '',
-      description: '',
-      errors: []
-    }
-  });
+  res.render('propositions/new', {proposition: Proposition.empty()});
 });
 
-router.post('/', propositionValidationRules, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.render('propositions/new', { 
-      proposition: { 
-        body: req.body.body, 
-        description: req.body.description,
-        errors: errors.array()
-      }
-    });
+router.post('/', async (req, res) => {
+  let proposition = await Proposition.deserializeReq(req);
+  await Proposition.validate(proposition);
+  if (proposition.errors.length > 0) {
+    res.render('propositions/new', { proposition: proposition });
     return;
   }
-
-  let params = {
-    body: req.body.body,
-    description: req.body.description,
-    author_id: req.user.id
-  }
-  let proposition = await Proposition.create(params);
+  proposition.author_id = req.user.id;
+  proposition.slug = Proposition.makeSlug(proposition.body);
+  await Proposition.store(proposition);
   // add default vote from the author
   await Proposition.vote(proposition.id, req.user.id, 1);
   res.redirect(`/propositions/${proposition.id}/${proposition.slug}`);

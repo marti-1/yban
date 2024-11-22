@@ -1,20 +1,13 @@
 var express = require('express');
 var router = express.Router();
 
-const { validationResult } = require('express-validator');
-
 const Proposition = require('../db/proposition');
 const Argument = require('../db/argument');
-const { argumentValidationRules } = require('../middleware/validators');
 const setFlash = require('../helpers/flash');
 
-router.get('/:propositions_id/arguments/:id/edit', async (req, res) => {
-  let proposition = await Proposition.findById(req.params.propositions_id);
-  let argument = await Argument.findById(req.params.id);
-  res.render('arguments/edit', {
-    proposition: proposition,
-    argument: argument 
-  });
+router.get('/:proposition_id/arguments/:id/edit', async (req, res) => {
+  let argument = await Argument.deserializeReq(req);
+  res.render('arguments/edit', { argument: argument });
 });
 
 router.get('/:proposition_id/new', async (req, res) => {
@@ -24,59 +17,35 @@ router.get('/:proposition_id/new', async (req, res) => {
     res.redirect('/users/sign_in');
     return;
   }
-
   let proposition = await Proposition.findById(req.params.proposition_id);
   res.render('arguments/new', { 
     proposition: proposition, 
-    argument: {
-      side: req.query.side === 'yes',
-  } });
+    argument: Argument.empty()
+  });
 });
 
-router.post('/:proposition_id/arguments/', argumentValidationRules, async (req, res) => {
-  let proposition = await Proposition.findById(req.params.proposition_id);
-  // get form validation results
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+router.post('/:proposition_id/arguments/', async (req, res) => {
+  let argument = await Argument.deserializeReq(req);
+  argument = await Argument.validate(argument);
+  if (argument.errors.length > 0) {
     res.render('arguments/new', { 
-      proposition: proposition,
-      argument: {
-        side: req.body.side == 'yes',
-        body: req.body.body,
-        errors: errors.array()
-      }
+      proposition: argument.proposition,
+      argument: argument
     });
     return;
   }
-
-  let params = {
-    proposition_id: req.params.proposition_id,
-    side: req.body.side == 'yes',
-    body: req.body.body,
-    author_id: req.user.id
-  };
-  let argument = await Argument.create(params);
-  res.redirect(`/propositions/${req.params.proposition_id}/${proposition.slug}#argument-${argument.id}`);
+  argument.author_id = req.user.id;
+  await Argument.store(argument);
+  res.redirect(`/propositions/${argument.proposition.id}/${argument.proposition.slug}#argument-${argument.id}`);
 });
 
-router.put('/:propositions_id/arguments/:id', argumentValidationRules, async (req, res) => {
-  let proposition = await Proposition.findById(req.params.propositions_id);
-  let argument = await Argument.findById(req.params.id);
-  // get form validation results
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.render('arguments/edit', { 
-      proposition: proposition,
-      argument: {
-        id: req.params.id,
-        side: req.body.side == 'yes',
-        body: req.body.body,
-        errors: errors.array()
-      }
-    });
+router.put('/:proposition_id/arguments/:id', async (req, res) => {
+  let argument = await Argument.deserializeReq(req);
+  await Argument.validate(argument);
+  if (argument.errors.length > 0) {
+    res.render('arguments/edit', { argument: argument });
     return;
   }
-
   // only author should be allowed to update
   if (req.user.id !== argument.author_id) {
     // redirect back with flash alert message
@@ -84,16 +53,14 @@ router.put('/:propositions_id/arguments/:id', argumentValidationRules, async (re
     res.redirect('back');
     return;
   }
-
-  await Argument.update(req.params.id, req.body);
+  await Argument.store(argument);
   // redirect back to the argument
   await setFlash(req, 'success', 'Argument updated successfully');
-  res.redirect(`/propositions/${req.params.propositions_id}/${proposition.slug}#argument-${req.params.id}`);
+  res.redirect(`/propositions/${argument.proposition.id}/${argument.proposition.slug}#argument-${argument.id}`);
 });
 
 router.delete('/:proposition_id/arguments/:id', async (req, res) => {
-  let proposition = await Proposition.findById(req.params.proposition_id);
-  let argument = await Argument.findById(req.params.id);
+  let argument = await Argument.deserializeReq(req);
   // only author should be allowed to update
   if (req.user.id !== argument.author_id) {
     // redirect back with flash alert message
@@ -101,10 +68,9 @@ router.delete('/:proposition_id/arguments/:id', async (req, res) => {
     res.redirect('back');
     return;
   }
-
-  await Argument.destroy(req.params.id);
+  await Argument.destroy(argument.id);
   await setFlash(req, 'success', 'Argument deleted successfully');
-  res.redirect(`/propositions/${proposition.id}/${proposition.slug}`);
+  res.redirect(`/propositions/${argument.proposition.id}/${argument.proposition.slug}`);
 });
 
 module.exports = router;
